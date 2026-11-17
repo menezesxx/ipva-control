@@ -1,17 +1,7 @@
-
-# ==========================================
-# 1. IMPORTAÇÕES
-# ==========================================
-
 from fastapi import FastAPI
 from supabase import create_client
 from dotenv import load_dotenv
 import os
-
-
-# ==========================================
-# 2. CARREGAR ARQUIVO .ENV
-# ==========================================
 
 caminho_env = os.path.join(
     os.path.dirname(os.path.abspath(__file__)),
@@ -22,11 +12,6 @@ load_dotenv(caminho_env)
 
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_PUBLISHABLE_KEY")
-
-
-# ==========================================
-# 4. CONECTAR AO SUPABASE
-# ==========================================
 
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
@@ -46,10 +31,6 @@ def listar_clientes_banco():
 
     return resposta.data
 
-
-# ==========================================
-# 7. FUNÇÕES DE CLIENTES (VERSÃO TEMPORÁRIA)
-# ==========================================
 
 clientes = []
 

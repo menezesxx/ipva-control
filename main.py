@@ -1,3 +1,5 @@
+
+from pydantic import BaseModel
 from fastapi import FastAPI
 from supabase import create_client
 from dotenv import load_dotenv
@@ -13,11 +15,28 @@ load_dotenv(caminho_env)
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_PUBLISHABLE_KEY")
 
+
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 print("Cliente Supabase inicializado!")
 
 app = FastAPI()
+
+class Cliente(BaseModel):
+    nome: str
+    cpf: str
+    telefone: str
+
+@app.post("/clientes")
+def cadastrar_cliente_banco(cliente: Cliente):
+    resposta = (
+        supabase
+        .table("clientes")
+        .insert(cliente.model_dump())
+        .execute()
+    )
+
+    return resposta.data
 
 @app.get("/clientes")
 def listar_clientes_banco():
@@ -30,7 +49,6 @@ def listar_clientes_banco():
 )
 
     return resposta.data
-
 
 clientes = []
 

@@ -140,3 +140,18 @@ def atualizar_telefone_api(cpf: str, novo_telefone: str):
 
     return {"message": "Telefone atualizado com sucesso!"}
 
+
+@app.delete("/clientes/{cpf}")
+def deletar_cliente_api(cpf: str):
+    resposta = (
+        supabase
+        .table("clientes")
+        .delete()
+        .eq("cpf", cpf)
+        .execute()
+    )
+
+    if not resposta.data:
+        raise HTTPException(status_code=404, detail="Cliente não encontrado")
+
+    return {"message": "Cliente deletado com sucesso!"}

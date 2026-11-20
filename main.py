@@ -191,3 +191,28 @@ def cadastrar_veiculo(cpf: str, veiculo: Veiculo):
     )
 
     return {"message": "Veículo cadastrado com sucesso!"}
+
+@app.get("/clientes/{cpf}/veiculos")
+def listar_veiculos(cpf: str):
+    resposta_cliente = (
+        supabase
+        .table("clientes")
+        .select("*")
+        .eq("cpf", cpf)
+        .execute()
+    )
+
+    if not resposta_cliente.data:
+        raise HTTPException(status_code=404, detail="Cliente não encontrado")
+
+    cliente_id = resposta_cliente.data[0]["id"]
+
+    resposta_veiculos = (
+        supabase
+        .table("veiculos")
+        .select("*")
+        .eq("cliente_id", cliente_id)
+        .execute()
+    )
+
+    return resposta_veiculos.data

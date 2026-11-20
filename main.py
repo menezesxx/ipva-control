@@ -123,3 +123,20 @@ def buscar_cliente_api(cpf: str):
         raise HTTPException(status_code=404, detail="Cliente não encontrado")
 
     return resposta.data[0]
+
+
+@app.patch("/clientes/{cpf}")
+def atualizar_telefone_api(cpf: str, novo_telefone: str):
+    resposta = (
+        supabase
+        .table("clientes")
+        .update({"telefone": novo_telefone})
+        .eq("cpf", cpf)
+        .execute()
+    )
+
+    if not resposta.data:
+        raise HTTPException(status_code=404, detail="Cliente não encontrado")
+
+    return {"message": "Telefone atualizado com sucesso!"}
+

@@ -155,3 +155,39 @@ def deletar_cliente_api(cpf: str):
         raise HTTPException(status_code=404, detail="Cliente não encontrado")
 
     return {"message": "Cliente deletado com sucesso!"}
+
+
+class Veiculo(BaseModel):
+    placa: str
+    renavam: str
+    chassi: str
+
+class Cliente(BaseModel):
+    nome: str
+    cpf: str
+    telefone: str
+
+@app.post("/clientes/{cpf}/veiculos")
+def cadastrar_veiculo(cpf: str, veiculo: Veiculo):
+    resposta_cliente = (
+        supabase
+        .table("clientes")
+        .select("*")
+        .eq("cpf", cpf)
+        .execute()
+    )
+
+    if not resposta_cliente.data:
+        raise HTTPException(status_code=404, detail="Cliente não encontrado")
+
+    veiculo_data = veiculo.model_dump()
+    veiculo_data["cliente_id"] = resposta_cliente.data[0]["id"]
+
+    resposta_veiculo = (
+        supabase
+        .table("veiculos")
+        .insert(veiculo_data)
+        .execute()
+    )
+
+    return {"message": "Veículo cadastrado com sucesso!"}

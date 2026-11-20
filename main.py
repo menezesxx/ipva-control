@@ -1,6 +1,6 @@
 
 from http.client import HTTPException
-
+from postgrest.exceptions import APIError
 from pydantic import BaseModel
 from fastapi import FastAPI, HTTPException
 from supabase import create_client
@@ -183,12 +183,20 @@ def cadastrar_veiculo(cpf: str, veiculo: Veiculo):
     veiculo_data = veiculo.model_dump()
     veiculo_data["cliente_id"] = resposta_cliente.data[0]["id"]
 
-    resposta_veiculo = (
-        supabase
-        .table("veiculos")
-        .insert(veiculo_data)
-        .execute()
-    )
+
+    try:
+        resposta_veiculo = (
+            supabase
+            .table("veiculos")
+            .insert(veiculo_data)
+            .execute()
+        )
+
+    except APIError:
+        raise HTTPException(
+            status_code=409,
+            detail="Placa, RENAVAM ou chassi já cadastrado"
+        )
 
     return {"message": "Veículo cadastrado com sucesso!"}
 
@@ -216,3 +224,4 @@ def listar_veiculos(cpf: str):
     )
 
     return resposta_veiculos.data
+

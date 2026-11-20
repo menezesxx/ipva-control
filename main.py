@@ -1,6 +1,8 @@
 
+from http.client import HTTPException
+
 from pydantic import BaseModel
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from supabase import create_client
 from dotenv import load_dotenv
 import os
@@ -75,6 +77,7 @@ def buscar_cliente(cpf: str):
     for cliente in clientes:
         if cliente["cpf"] == cpf:
             return cliente
+        
 
     return "Cliente não encontrado!"
 
@@ -105,3 +108,18 @@ def listar_clientes():
         return "Nenhum cliente cadastrado."
 
     return clientes
+
+@app.get("/clientes/{cpf}")
+def buscar_cliente_api(cpf: str):
+    resposta = (
+        supabase
+        .table("clientes")
+        .select("*")
+        .eq("cpf", cpf)
+        .execute()
+    )
+
+    if not resposta.data:
+        raise HTTPException(status_code=404, detail="Cliente não encontrado")
+
+    return resposta.data[0]

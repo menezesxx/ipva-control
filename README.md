@@ -12,8 +12,8 @@ Ainda estou construindo, então o projeto cresce a cada commit.
 
 - [x] Conexão com o banco de dados (Supabase)
 - [x] Listar clientes (`GET /clientes`)
-- [ ] Cadastrar cliente (`POST /clientes`): em teste
-- [ ] Buscar, atualizar e deletar cliente
+- [x] Cadastrar cliente (`POST /clientes`): em teste
+- [x] Buscar, atualizar e deletar cliente
 - [ ] Cadastro de veículos
 - [ ] Parcelas do IPVA com data de vencimento
 - [ ] Painel com os boletos que estão para vencer

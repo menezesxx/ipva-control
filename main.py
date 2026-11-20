@@ -1,5 +1,4 @@
 
-from http.client import HTTPException
 from postgrest.exceptions import APIError
 from pydantic import BaseModel
 from fastapi import FastAPI, HTTPException
@@ -46,7 +45,6 @@ def listar_clientes_banco():
     supabase
     .table("clientes")
     .select("*")
-    .limit(5)
     .execute()
 )
 
@@ -162,11 +160,6 @@ class Veiculo(BaseModel):
     renavam: str
     chassi: str
 
-class Cliente(BaseModel):
-    nome: str
-    cpf: str
-    telefone: str
-
 @app.post("/clientes/{cpf}/veiculos")
 def cadastrar_veiculo(cpf: str, veiculo: Veiculo):
     resposta_cliente = (
@@ -199,6 +192,7 @@ def cadastrar_veiculo(cpf: str, veiculo: Veiculo):
         )
 
     return {"message": "Veículo cadastrado com sucesso!"}
+
 
 @app.get("/clientes/{cpf}/veiculos")
 def listar_veiculos(cpf: str):

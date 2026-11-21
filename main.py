@@ -185,14 +185,12 @@ def cadastrar_veiculo(cpf: str, veiculo: Veiculo):
             .execute()
         )
 
-    except APIError:
-        raise HTTPException(
-            status_code=409,
-            detail="Placa, RENAVAM ou chassi já cadastrado"
-        )
+    except APIError as erro:
+        if erro.code == "23505":
+            raise HTTPException(status_code=409, detail="Placa, RENAVAM ou chassi já cadastrado")
+        raise
 
     return {"message": "Veículo cadastrado com sucesso!"}
-
 
 @app.get("/clientes/{cpf}/veiculos")
 def listar_veiculos(cpf: str):

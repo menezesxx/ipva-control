@@ -30,13 +30,17 @@ class Cliente(BaseModel):
 
 @app.post("/clientes")
 def cadastrar_cliente_banco(cliente: Cliente):
-    resposta = (
+    try:
+        resposta = (
         supabase
         .table("clientes")
         .insert(cliente.model_dump())
         .execute()
     )
-
+    except APIError as erro:
+        if erro.code == "23505":
+            raise HTTPException(status_code=409, detail="CPF já cadastrado")
+        raise    
     return resposta.data
 
 @app.get("/clientes")

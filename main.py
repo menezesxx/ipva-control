@@ -5,6 +5,8 @@ from fastapi import FastAPI, HTTPException
 from supabase import create_client
 from dotenv import load_dotenv
 import os
+from datetime import date
+from dateutil.relativedelta import relativedelta
 
 caminho_env = os.path.join(
     os.path.dirname(os.path.abspath(__file__)),
@@ -165,3 +167,53 @@ def listar_veiculos(cpf: str):
 
     return resposta_veiculos.data
 
+
+class Parcelamento(BaseModel):
+    ano:int
+    valor_total: float
+    quantidade_parcelas: int
+    primeiro_vencimento: date
+
+
+@app.post("/veiculos/{placa}/parcelas")
+def cadastrar_parcelas(placa: str, parcelamento: Parcelamento):
+    resposta_veiculo = (
+        supabase
+        .table("veiculos")
+        .select("*")
+        .eq("placa", placa)
+        .execute()
+    )
+
+    if not resposta_veiculo.data:
+        raise HTTPException(status_code=404, detail="Veículo não encontrado")
+
+    veiculo_id = resposta_veiculo.data[0]["id"]
+
+    valor_parcela = parcelamento.valor_total / parcelamento.quantidade_parcelas
+    parcelas = []
+    for i in range(parcelamento.quantidade_parcelas):
+        vencimento = parcelamento.primeiro_vencimento + relativedelta(months=i)
+        parcelas.append({
+            "veiculo_id": veiculo_id,
+            "ano": parcelamento.ano,
+            "numero": i + 1,
+            "total_parcelas": parcelamento.quantidade_parcelas,
+            "valor": round(valor_parcela, 2),
+            "vencimento": vencimento.isoformat()
+        })
+
+    try:
+        resposta_parcelas = (
+            supabase
+            .table("parcelas")
+            .insert(parcelas)
+            .execute()
+        )
+
+    except APIError as erro:
+        if erro.code == "23505":
+            raise HTTPException(status_code=409, detail="Parcelas desse ano já cadastradas para o veículo")
+        raise
+
+    return {"message": "Parcelas cadastradas com sucesso!"}
